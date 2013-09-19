@@ -1,7 +1,15 @@
 #!/usr/bin/env python
-
+#
 # author: syl20bnr (2013)
 # goal: Focus the nth window in the current workspace (limited to 10 firsts)
+#
+# Example of usage in i3 config:
+#
+# bindsym $mod+0   exec focus_win.py -n 0
+# bindsym $mod+1   exec focus_win.py -n 1
+# ...              ...
+# bindsym $mod+8   exec focus_win.py -n 8
+# bindsym $mod+9   exec focus_win.py -n 9
 
 import argparse
 from subprocess import Popen
