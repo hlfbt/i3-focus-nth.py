@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # author: syl20bnr (2013), hlfbt (2024)
 # goal: Focus the nth window in the current workspace (limited to 10 firsts)
