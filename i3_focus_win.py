@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 #
-# author: syl20bnr (2013)
+# author: syl20bnr (2013), hlfbt (2024)
 # goal: Focus the nth window in the current workspace (limited to 10 firsts)
+# dependencies: i3ipc
 #
 # Example of usage in i3 config:
 #
@@ -10,48 +11,63 @@
 # ...              ...
 # bindsym $mod+8   exec focus_win.py -n 8
 # bindsym $mod+9   exec focus_win.py -n 9
+#
 
+import sys
 import argparse
-from subprocess import Popen
-import i3
+from typing import List, Optional
+
+import i3ipc
 
 
-PARSER = argparse.ArgumentParser(prog='focus_win')
+PARSER = argparse.ArgumentParser(prog='i3-focus-nth')
 PARSER.add_argument('-n', '--number',
                     required=True,
                     type=int,
                     choices=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                     help='Window number (limited to [0,9]).')
 
+i3 = i3ipc.Connection()
+
 
 def focus_nth_window(nth):
-    ''' Roughly focus the nth window in the hierarchy (limited to 10 first) '''
-    wins = get_windows_from_current_workspace()
+    """ Roughly focus the nth window in the hierarchy (limited to 10 first) """
+    windows = get_windows_on_current_workspace()
+
     if nth == 0:
         nth = 10
-    cmd = 'i3-msg [con_id={0}] focus'.format(wins[nth-1])
-    Popen(cmd, shell=True)
+
+    if nth > len(windows):
+        print('Window number out of range', file=sys.stderr)
+
+        exit(1)
+
+    i3.command('[con_id={0}] focus'.format(windows[nth - 1].id))
 
 
-def get_windows_from_current_workspace():
-    res = []
-    ws = get_current_workspace()
-    workspace = i3.filter(name=ws)
-    if workspace:
-        workspace = workspace[0]
-        windows = i3.filter(workspace, nodes=[])
-        for window in windows:
-            res.append(window['id'])
-    return res
+def get_windows_on_current_workspace() -> List[i3ipc.con.Con]:
+    """ Returns all windows in the focused workspace """
+    workspace = get_current_workspace()
+
+    if workspace is None:
+        return []
+
+    root = i3.get_tree()
+    nodes = root.find_by_id(workspace.id)
+
+    return [node for node in nodes if node.window]
 
 
-def get_current_workspace():
-    ''' Returns the current workspace '''
-    workspaces = i3.msg('get_workspaces')
-    workspace = i3.filter(tree=workspaces, focused=True)
-    if workspace:
-        return workspace[0]['name']
-    return ''
+def get_current_workspace() -> Optional[i3ipc.con.Con]:
+    """ Returns the current workspace """
+    focused = i3.get_tree().find_focused()
+
+    if focused is None:
+        print('No focused workspace', file=sys.stderr)
+
+        return None
+
+    return focused.workspace()
 
 
 if __name__ == '__main__':
