@@ -6,11 +6,11 @@
 #
 # Example of usage in i3 config:
 #
-# bindsym $mod+0   exec focus_win.py -n 0
-# bindsym $mod+1   exec focus_win.py -n 1
+# bindsym $mod+0   exec i3-focus-nth.py -n 0
+# bindsym $mod+1   exec i3-focus-nth.py -n 1
 # ...              ...
-# bindsym $mod+8   exec focus_win.py -n 8
-# bindsym $mod+9   exec focus_win.py -n 9
+# bindsym $mod+8   exec i3-focus-nth.py -n 8
+# bindsym $mod+9   exec i3-focus-nth.py -n 9
 #
 
 import sys
